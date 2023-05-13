@@ -101,3 +101,18 @@ class CfgNode:
             # overwrite the attribute
             print("command line overwriting config attribute %s with %s" % (key, val))
             setattr(obj, leaf_key, val)
+
+def make_config(config, parser):
+    parser.add_argument('--batch_size', type=int, default=32)
+    parser.add_argument('--learning_rate', type=float, default=5e-4)
+    parser.add_argument('--weight_decay', type=float, default=0.1)
+    parser.add_argument('--beta1', type=float, default=0.9)
+    parser.add_argument('--beta2', type=float, default=0.95)
+
+    args = parser.parse_args()
+    config.trainer.batch_size = args.batch_size
+    config.trainer.learning_rate = args.learning_rate
+    config.trainer.weight_decay = args.weight_decay
+    config.trainer.betas = (args.beta1, args.beta2)
+
+    return config

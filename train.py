@@ -11,7 +11,7 @@ from torch.utils.data.dataloader import DataLoader
 
 from mingpt.model import GPT
 from mingpt.trainer import Trainer
-from mingpt.utils import set_seed, setup_logging, CfgNode as CN
+from mingpt.utils import set_seed, setup_logging, make_config, CfgNode as CN
 
 # -----------------------------------------------------------------------------
 
@@ -33,7 +33,6 @@ def get_config():
 
     # trainer
     C.trainer = Trainer.get_default_config()
-    C.trainer.learning_rate = 5e-4 # the model we're using is so small that we can go a bit faster
 
     return C
 
@@ -84,10 +83,13 @@ class CharDataset(Dataset):
 # -----------------------------------------------------------------------------
 
 if __name__ == '__main__':
-
+    import argparse
+    parser = argparse.ArgumentParser()
     # get default config and overrides from the command line, if any
     config = get_config()
     config.merge_from_args(sys.argv[1:])
+    config = make_config(config, parser)
+
     print(config)
     setup_logging(config)
     set_seed(config.system.seed)
@@ -103,7 +105,6 @@ if __name__ == '__main__':
 
     # construct the trainer object
     trainer = Trainer(config.trainer, model, train_dataset)
-
     # iteration callback
     def batch_end_callback(trainer):
 
