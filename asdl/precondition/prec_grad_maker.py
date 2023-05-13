@@ -163,13 +163,15 @@ class PreconditionedGradientMaker(GradientMaker):
         pass
 
     def precondition(self):
-        raise NotImplementedError
+        pass
+        #raise NotImplementedError
 
     def _teardown(self):
         pass
 
     def do_forward_and_backward(self, step=None) -> bool:
-        raise NotImplementedError
+        return True
+        #raise NotImplementedError
 
     def do_update_curvature(self, step=None) -> bool:
         if self.curvature_upd_schedule is not None:

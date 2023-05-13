@@ -114,6 +114,13 @@ def make_config(config, parser):
     parser.add_argument('--model_type', type=str, default='gpt-mini')
     parser.add_argument('--num_workers', type=int, default=4)
 
+    parser.add_argument('--optim', default='adamw')
+    parser.add_argument('--momentum', type=float, default=0.9)
+
+    parser.add_argument('--curvature_update_interval', type=int, default=100)
+    parser.add_argument('--damping', type=float, default=1e-6)
+    parser.add_argument('--ema_decay', type=float, default=0.01)
+
     args = parser.parse_args()
     config.trainer.batch_size = args.batch_size
     config.trainer.learning_rate = args.learning_rate
@@ -121,6 +128,12 @@ def make_config(config, parser):
     config.trainer.betas = (args.beta1, args.beta2)
     config.trainer.grad_norm_clip = args.grad_norm_clip
     config.trainer.num_workers = args.num_workers
+    config.trainer.optim = args.optim
+
+    config.trainer.momentum = args.momentum
+    config.trainer.curvature_update_interval = args.curvature_update_interval
+    config.trainer.damping = args.damping
+    config.trainer.ema_decay = args.ema_decay
 
     config.model.model_type = args.model_type
     config.data.datapath = args.datapath

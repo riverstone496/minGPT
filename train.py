@@ -31,6 +31,9 @@ def get_config():
     C.model = GPT.get_default_config()
     C.model.model_type = 'gpt-mini'
 
+    # asdl
+    C.asdl = CN()
+
     # trainer
     C.trainer = Trainer.get_default_config()
 

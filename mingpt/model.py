@@ -16,6 +16,8 @@ from torch.nn import functional as F
 
 from mingpt.utils import CfgNode as CN
 
+import asdl
+
 # -----------------------------------------------------------------------------
 
 class NewGELU(nn.Module):
@@ -254,8 +256,13 @@ class GPT(nn.Module):
             {"params": [param_dict[pn] for pn in sorted(list(decay))], "weight_decay": train_config.weight_decay},
             {"params": [param_dict[pn] for pn in sorted(list(no_decay))], "weight_decay": 0.0},
         ]
-        optimizer = torch.optim.AdamW(optim_groups, lr=train_config.learning_rate, betas=train_config.betas)
-        return optimizer
+
+        if train_config.optim == 'adamw':
+            optimizer = torch.optim.AdamW(optim_groups, lr=train_config.learning_rate, betas=train_config.betas)
+        else:
+            optimizer = torch.optim.SGD(optim_groups, lr=train_config.learning_rate, momentum=train_config.momentum)
+        grad_maker = asdl.create_grad_maker(self,train_config)
+        return optimizer, grad_maker
 
     def forward(self, idx, targets=None):
         device = idx.device

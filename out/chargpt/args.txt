@@ -1,1 +1,1 @@
-/Users/satoki/Documents/lab/minGPT/train.py --grad_norm_clip 10
+/Users/satoki/Documents/lab/minGPT/train.py --optim kfac_emp

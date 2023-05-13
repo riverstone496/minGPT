@@ -12,6 +12,6 @@ from .hessian import *
 from .precondition import *
 from .kernel import *
 from .counter import *
-
+from .create_gradmaker import *
 
 __version__ = '0.1.0'

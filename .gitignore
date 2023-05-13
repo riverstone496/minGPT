@@ -1,8 +1,10 @@
 .ipynb_checkpoints/
 __pycache__/
-./out/
+./out
 *.swp
 .env
 .pylintrc
 model.pt
 config.json
+
+.vscode

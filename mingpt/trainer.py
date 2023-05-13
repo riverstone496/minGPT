@@ -10,6 +10,8 @@ import torch
 from torch.utils.data.dataloader import DataLoader
 from mingpt.utils import CfgNode as CN
 
+import asdl
+
 class Trainer:
 
     @staticmethod
@@ -62,7 +64,7 @@ class Trainer:
         model, config = self.model, self.config
 
         # setup the optimizer
-        self.optimizer = model.configure_optimizers(config)
+        self.optimizer, self.grad_maker = model.configure_optimizers(config)
 
         # setup the dataloader
         train_loader = DataLoader(
@@ -90,11 +92,14 @@ class Trainer:
             x, y = batch
 
             # forward the model
-            logits, self.loss = model(x, y)
-
+            #logits, self.loss = model(x, y)
+            #model.zero_grad(set_to_none=True)
             # backprop and update the parameters
-            model.zero_grad(set_to_none=True)
-            self.loss.backward()
+            #self.loss.backward()
+            
+            dummy_y = self.grad_maker.setup_model_call(model, x, y)
+            self.grad_maker.setup_loss_repr(dummy_y[1])
+            logits, self.loss = self.grad_maker.forward_and_backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), config.grad_norm_clip)
             self.optimizer.step()
 

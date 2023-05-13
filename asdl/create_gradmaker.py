@@ -34,14 +34,12 @@ def create_grad_maker(model,args, optimizer=None):
                                     preconditioner_upd_interval=args.curvature_update_interval,
                                     curvature_upd_interval=args.curvature_update_interval,
                                     ignore_modules=[nn.BatchNorm1d,nn.BatchNorm2d,nn.BatchNorm3d,nn.LayerNorm],
-                                    block_size=args.block_size,
-                                    grafting=args.grafting
                                     )
 
     if args.optim == OPTIM_KFAC_MC:
-        grad_maker = KfacGradientMaker(model, config, eye_initialization = args.eye_initialization)
+        grad_maker = KfacGradientMaker(model, config)
     elif args.optim == OPTIM_KFAC_EMP:
-        grad_maker = KfacEmpGradientMaker(model, config, eye_initialization = args.eye_initialization)
+        grad_maker = KfacEmpGradientMaker(model, config)
     elif args.optim == OPTIM_ADAM_ASDL:
         grad_maker = AdamGradientMaker(model, config, optimizer=optimizer, grad_unit=args.grad_unit, before_momentum = args.before_momentum)
     elif args.optim == OPTIM_NGD_FULL:
