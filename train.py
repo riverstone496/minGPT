@@ -87,7 +87,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     # get default config and overrides from the command line, if any
     config = get_config()
-    config.merge_from_args(sys.argv[1:])
     config = make_config(config, parser)
 
     print(config)
@@ -95,7 +94,7 @@ if __name__ == '__main__':
     set_seed(config.system.seed)
 
     # construct the training dataset
-    text = open('data/enwik8', 'r').read() # don't worry we won't run out of file handles
+    text = open(config.data.datapath, 'r').read() # don't worry we won't run out of file handles
     train_dataset = CharDataset(config.data, text)
 
     # construct the model
