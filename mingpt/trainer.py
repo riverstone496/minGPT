@@ -100,8 +100,9 @@ class Trainer:
             dummy_y = self.grad_maker.setup_model_call(model, x, y)
             self.grad_maker.setup_loss_repr(dummy_y[1])
             logits, self.loss = self.grad_maker.forward_and_backward()
-            torch.nn.utils.clip_grad_norm_(model.parameters(), config.grad_norm_clip)
             self.optimizer.step()
+
+            logits, self.loss = model(x, y)
 
             self.trigger_callbacks('on_batch_end')
             self.iter_num += 1

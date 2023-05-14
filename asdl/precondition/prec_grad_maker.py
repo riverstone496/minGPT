@@ -73,7 +73,8 @@ class PreconditioningConfig:
     damping: float = 1.e-7
     ema_decay: float = _invalid_value
     ignore_modules: List[Any] = None
-
+    momentum: float = 0.9
+    grad_norm_clip: float = -1
 
 class PreconditionedGradientMaker(GradientMaker):
     _supported_classes = None
@@ -103,6 +104,7 @@ class PreconditionedGradientMaker(GradientMaker):
         self.module_dict = nn.ModuleDict({name.replace('.', '/'): m for name, m in model.named_modules()
                                           if self._is_supported(name, m)})
         self.device = next(self.module_dict.parameters()).device
+        print(self.module_dict)
 
     def _is_supported(self, module_name: str, module: nn.Module) -> bool:
         if len(list(module.children())) > 0:
@@ -144,6 +146,9 @@ class PreconditionedGradientMaker(GradientMaker):
             self.update_curvature()
         if self.do_update_preconditioner(step):
             self.update_preconditioner()
+
+        if self.config.grad_norm_clip != -1:
+            nn.utils.clip_grad_norm_(self.model.parameters(), self.config.grad_norm_clip)
 
         self.precondition()
 

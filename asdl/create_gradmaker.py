@@ -27,13 +27,15 @@ OPTIM_NGD_FULL = 'ngd_full'
 OPTIM_LARS = 'lars'
 OPTIM_ADAM_ASDL = 'adam_asdl'
 
-def create_grad_maker(model,args, optimizer=None):
+def create_grad_maker(model,optimizer,args):
     config = PreconditioningConfig(data_size=args.batch_size,
                                     damping=args.damping,
                                     ema_decay = args.ema_decay,
                                     preconditioner_upd_interval=args.curvature_update_interval,
                                     curvature_upd_interval=args.curvature_update_interval,
-                                    ignore_modules=[nn.BatchNorm1d,nn.BatchNorm2d,nn.BatchNorm3d,nn.LayerNorm],
+                                    momentum = args.momentum,
+                                    grad_norm_clip = args.grad_norm_clip
+                                    #ignore_modules=[nn.BatchNorm1d,nn.BatchNorm2d,nn.BatchNorm3d,nn.LayerNorm],
                                     )
 
     if args.optim == OPTIM_KFAC_MC:
@@ -41,7 +43,7 @@ def create_grad_maker(model,args, optimizer=None):
     elif args.optim == OPTIM_KFAC_EMP:
         grad_maker = KfacEmpGradientMaker(model, config)
     elif args.optim == OPTIM_ADAM_ASDL:
-        grad_maker = AdamGradientMaker(model, config, optimizer=optimizer, grad_unit=args.grad_unit, before_momentum = args.before_momentum)
+        grad_maker = AdamGradientMaker(model, config)
     elif args.optim == OPTIM_NGD_FULL:
         grad_maker = FullNaturalGradientMaker(model, config)
     elif args.optim == OPTIM_NGD_LAYER_WISE:

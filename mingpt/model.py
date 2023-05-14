@@ -258,10 +258,13 @@ class GPT(nn.Module):
         ]
 
         if train_config.optim == 'adamw':
-            optimizer = torch.optim.AdamW(optim_groups, lr=train_config.learning_rate, betas=train_config.betas)
+            optimizer = torch.optim.AdamW(optim_groups, lr=train_config.learning_rate, betas=train_config.betas, weight_decay=train_config.weight_decay)
+        elif train_config.optim == 'adam':
+            optimizer = torch.optim.Adam(optim_groups, lr=train_config.learning_rate, betas=train_config.betas, weight_decay=train_config.weight_decay)
         else:
-            optimizer = torch.optim.SGD(optim_groups, lr=train_config.learning_rate, momentum=train_config.momentum)
-        grad_maker = asdl.create_grad_maker(self,train_config)
+            optimizer = torch.optim.SGD(optim_groups, lr=train_config.learning_rate, momentum=train_config.momentum, weight_decay=train_config.weight_decay)
+        grad_maker = asdl.create_grad_maker(self,optimizer,train_config)
+        
         return optimizer, grad_maker
 
     def forward(self, idx, targets=None):
