@@ -74,6 +74,7 @@ class PreconditioningConfig:
     ema_decay: float = _invalid_value
     ignore_modules: List[Any] = None
     grad_norm_clip: float = -1
+    momentum: float = 0.9
 
 class PreconditionedGradientMaker(GradientMaker):
     _supported_classes = None
@@ -150,6 +151,8 @@ class PreconditionedGradientMaker(GradientMaker):
         if self.do_update_preconditioner(step):
             self.update_preconditioner()
 
+        # self.add_momentum()
+
         self.precondition()
 
         self._teardown()
@@ -173,6 +176,14 @@ class PreconditionedGradientMaker(GradientMaker):
 
     def _teardown(self):
         pass
+
+    def add_momentum(self):
+        import torch
+        for p in self.model.parameters():
+            grad = p.grad.data
+            if not hasattr(p.grad, 'exp_avg'):
+                p.grad.exp_avg = torch.zeros_like(grad)
+            p.grad.exp_avg = torch.mul(p.grad.exp_avg, self.config.momentum) + (1 - self.config.momentum)*grad
 
     def do_forward_and_backward(self, step=None) -> bool:
         return True

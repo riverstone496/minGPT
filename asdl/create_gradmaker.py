@@ -26,6 +26,7 @@ OPTIM_NGD_LAYER_WISE = 'ngd_layerwise'
 OPTIM_NGD_FULL = 'ngd_full'
 OPTIM_LARS = 'lars'
 OPTIM_ADAM_ASDL = 'adam_asdl'
+OPTIM_ADAM_KFAC = 'adam_kfac'
 
 def create_grad_maker(model,optimizer,args):
     config = PreconditioningConfig(data_size=args.batch_size,
@@ -39,7 +40,7 @@ def create_grad_maker(model,optimizer,args):
 
     if args.optim == OPTIM_KFAC_MC:
         grad_maker = KfacGradientMaker(model, config)
-    elif args.optim == OPTIM_KFAC_EMP:
+    elif args.optim == OPTIM_KFAC_EMP or args.optim == OPTIM_ADAM_KFAC:
         grad_maker = KfacEmpGradientMaker(model, config)
     elif args.optim == OPTIM_ADAM_ASDL:
         grad_maker = AdamGradientMaker(model, config)
