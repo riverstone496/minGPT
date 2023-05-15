@@ -7,12 +7,11 @@ class AdamGradientMaker(PreconditionedGradientMaker):
     """
     implements ADAM Algorithm, as a preceding step.
     """
-    def __init__(self, model: nn.Module, config, optim):
+    def __init__(self, model: nn.Module, config):
         super().__init__(model, config)
         self.eps = config.damping
         self.momentum = config.momentum
         self.beta2 = 1 - config.ema_decay
-        self.lr = optim.param_groups[0]['lr']
 
     @torch.no_grad()
     def update_curvature(self):
@@ -57,4 +56,4 @@ class AdamGradientMaker(PreconditionedGradientMaker):
         grad = module_weight.grad
         denom = getattr(module_weight, 'curvature', None)
         if denom is not None:
-            module_weight.data = module_weight - self.lr * grad / denom
+            module_weight.grad.data = grad.clone().detach() / denom.clone().detach()

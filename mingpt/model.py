@@ -387,7 +387,6 @@ class SGDOptimizer(Optimizer):
         """
         loss = None
         for group in self.param_groups:
-            #continue
             for p in group['params']:
                 p.data = p.data - group['lr'] * p.grad.data
         return loss

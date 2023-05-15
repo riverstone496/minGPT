@@ -97,6 +97,7 @@ class Trainer:
             # backprop and update the parameters
             #self.loss.backward()
             
+            model.zero_grad(set_to_none=True)
             dummy_y = self.grad_maker.setup_model_call(model, x, y)
             self.grad_maker.setup_loss_repr(dummy_y[1])
             logits, self.loss = self.grad_maker.forward_and_backward()

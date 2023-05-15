@@ -43,7 +43,7 @@ def create_grad_maker(model,optimizer,args):
     elif args.optim == OPTIM_KFAC_EMP:
         grad_maker = KfacEmpGradientMaker(model, config)
     elif args.optim == OPTIM_ADAM_ASDL:
-        grad_maker = AdamGradientMaker(model, config, optimizer)
+        grad_maker = AdamGradientMaker(model, config)
     elif args.optim == OPTIM_NGD_FULL:
         grad_maker = FullNaturalGradientMaker(model, config)
     elif args.optim == OPTIM_NGD_LAYER_WISE:
