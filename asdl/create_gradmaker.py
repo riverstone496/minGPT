@@ -34,7 +34,7 @@ def create_grad_maker(model,optimizer,args):
                                     preconditioner_upd_interval=args.curvature_update_interval,
                                     curvature_upd_interval=args.curvature_update_interval,
                                     momentum = args.momentum,
-                                    grad_norm_clip = args.grad_norm_clip
+                                    grad_norm_clip = args.grad_norm_clip,
                                     #ignore_modules=[nn.BatchNorm1d,nn.BatchNorm2d,nn.BatchNorm3d,nn.LayerNorm],
                                     )
 
@@ -43,7 +43,7 @@ def create_grad_maker(model,optimizer,args):
     elif args.optim == OPTIM_KFAC_EMP:
         grad_maker = KfacEmpGradientMaker(model, config)
     elif args.optim == OPTIM_ADAM_ASDL:
-        grad_maker = AdamGradientMaker(model, config)
+        grad_maker = AdamGradientMaker(model, config, optimizer)
     elif args.optim == OPTIM_NGD_FULL:
         grad_maker = FullNaturalGradientMaker(model, config)
     elif args.optim == OPTIM_NGD_LAYER_WISE:

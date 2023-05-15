@@ -259,10 +259,12 @@ class GPT(nn.Module):
 
         if train_config.optim == 'adamw':
             optimizer = torch.optim.AdamW(optim_groups, lr=train_config.learning_rate, betas=train_config.betas, weight_decay=train_config.weight_decay)
+        elif train_config.optim == 'adam_scratch':
+            optimizer = ADAMOptimizer(optim_groups, lr=train_config.learning_rate, betas=train_config.betas, weight_decay=train_config.weight_decay)
         elif train_config.optim == 'adam':
             optimizer = torch.optim.Adam(optim_groups, lr=train_config.learning_rate, betas=train_config.betas, weight_decay=train_config.weight_decay)
         else:
-            optimizer = torch.optim.SGD(optim_groups, lr=train_config.learning_rate, momentum=train_config.momentum, weight_decay=train_config.weight_decay)
+            optimizer = SGDOptimizer(optim_groups, lr=train_config.learning_rate, weight_decay=train_config.weight_decay)
         grad_maker = asdl.create_grad_maker(self,optimizer,train_config)
         
         return optimizer, grad_maker
@@ -318,3 +320,74 @@ class GPT(nn.Module):
             idx = torch.cat((idx, idx_next), dim=1)
 
         return idx
+
+
+############
+from torch.optim import Optimizer
+
+class ADAMOptimizer(Optimizer):
+    """
+    implements ADAM Algorithm, as a preceding step.
+    """
+    def __init__(self, params, lr=1e-3, betas=(0.9, 0.99), eps=1e-8, weight_decay=0):
+        defaults = dict(lr=lr, betas=betas, eps=eps, weight_decay=weight_decay)
+        super(ADAMOptimizer, self).__init__(params, defaults)
+        
+    def step(self):
+        """
+        Performs a single optimization step.
+        """
+        loss = None
+        for group in self.param_groups:
+            for p in group['params']:
+                grad = p.grad.data
+                state = self.state[p]
+
+                # State initialization
+                if len(state) == 0:
+                    state['step'] = 0
+                    # Momentum (Exponential MA of gradients)
+                    state['exp_avg'] = torch.zeros_like(p.data)
+                    # RMS Prop componenet. (Exponential MA of squared gradients). Denominator.
+                    state['exp_avg_sq'] = torch.zeros_like(p.data)
+                    
+                exp_avg, exp_avg_sq = state['exp_avg'], state['exp_avg_sq']
+
+                b1, b2 = group['betas']
+                state['step'] += 1
+                
+                # # L2 penalty. Gotta add to Gradient as well.
+                # if group['weight_decay'] != 0:
+                #     grad = grad.add(group['weight_decay'], p.data)
+
+                # Momentum
+                exp_avg = torch.mul(exp_avg, b1) + (1 - b1)*grad
+                bias_correction1 = 1 / (1 - b1 ** state['step'])
+                #exp_avg *= bias_correction1
+                # RMS
+                bias_correction2 = 1 / (1 - b2 ** state['step'])
+                exp_avg_sq = torch.mul(exp_avg_sq, b2) + (1-b2)*(grad*grad)
+                #exp_avg_sq *= bias_correction2
+
+                denom = exp_avg_sq.sqrt() + group['eps']
+                p.data = p.data - group['lr'] * exp_avg / denom 
+        return loss
+    
+class SGDOptimizer(Optimizer):
+    """
+    implements ADAM Algorithm, as a preceding step.
+    """
+    def __init__(self, params, lr=1e-3, weight_decay = 0):
+        defaults = dict(lr=lr,weight_decay=weight_decay)
+        super(SGDOptimizer, self).__init__(params, defaults)
+    
+    def step(self):
+        """
+        Performs a single optimization step.
+        """
+        loss = None
+        for group in self.param_groups:
+            #continue
+            for p in group['params']:
+                p.data = p.data - group['lr'] * p.grad.data
+        return loss

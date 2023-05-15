@@ -6,5 +6,6 @@ __pycache__/
 .pylintrc
 model.pt
 config.json
-
+memo.txt
+test.py
 .vscode
