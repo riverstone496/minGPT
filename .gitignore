@@ -9,3 +9,5 @@ config.json
 memo.txt
 test.py
 .vscode
+yaml
+job.sh

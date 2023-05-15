@@ -106,7 +106,7 @@ class CfgNode:
 def make_config(config, parser):
     parser.add_argument('--batch_size', type=int, default=32)
     parser.add_argument('--learning_rate', type=float, default=5e-4)
-    parser.add_argument('--weight_decay', type=float, default=0)
+    parser.add_argument('--weight_decay', type=float, default=0.1)
     parser.add_argument('--beta2', type=float, default=0.95)
     parser.add_argument('--grad_norm_clip', type=float, default=1.0)
 
@@ -119,6 +119,7 @@ def make_config(config, parser):
     parser.add_argument('--optim', default='adamw')
     parser.add_argument('--momentum', type=float, default=0.9)
 
+    parser.add_argument('--block_size', type=int, default=128)
     parser.add_argument('--scheduler', type=str, default='cosine')
 
     parser.add_argument('--curvature_update_interval', type=int, default=1)
@@ -148,6 +149,7 @@ def make_config(config, parser):
     config.trainer.damping = args.damping
     config.trainer.ema_decay = args.ema_decay
     config.trainer.max_iters=args.max_iters
+    config.trainer.block_size = args.block_size
 
     config.trainer.scheduler = args.scheduler
 

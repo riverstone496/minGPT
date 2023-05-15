@@ -151,8 +151,6 @@ class PreconditionedGradientMaker(GradientMaker):
         if self.do_update_preconditioner(step):
             self.update_preconditioner()
 
-        # self.add_momentum()
-
         self.precondition()
 
         self._teardown()

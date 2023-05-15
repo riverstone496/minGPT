@@ -49,7 +49,7 @@ def create_grad_maker(model,optimizer,args):
     elif args.optim == OPTIM_NGD_LAYER_WISE:
         grad_maker = LayerWiseNaturalGradientMaker(model, config)
     elif args.optim == OPTIM_SHAMPOO:
-        grad_maker = ShampooGradientMaker(model,config)
+        grad_maker = ShampooGradientMaker(model,config,block_size = args.block_size,)
     elif args.optim == OPTIM_SMW_NGD:
         grad_maker = SmwEmpNaturalGradientMaker(model, config)
     elif args.optim == OPTIM_FULL_PSGD:

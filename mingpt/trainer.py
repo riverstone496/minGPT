@@ -108,7 +108,8 @@ class Trainer:
             self.grad_maker.setup_loss_repr(dummy_y[1])
             logits, self.loss = self.grad_maker.forward_and_backward()
             self.optimizer.step()
-            self.scheduler.step()
+            if self.scheduler is not None:
+                self.scheduler.step()
 
             logits, self.loss = model(x, y)
 

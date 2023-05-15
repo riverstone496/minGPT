@@ -299,7 +299,7 @@ class ShampooGradientMaker(PreconditionedGradientMaker):
 
 class Preconditioner:
     def __init__(self, param: Parameter, config: PreconditioningConfig,
-                 block_size: int = _invalid, inverse_exponent: int = _invalid,
+                 block_size: int = 512, inverse_exponent: int = _invalid,
                  best_effort_shape_interpretation: bool = False, init_scale: float = 1e-12):
         self.config = config
         self.param = param

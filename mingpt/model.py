@@ -257,12 +257,12 @@ class GPT(nn.Module):
             {"params": [param_dict[pn] for pn in sorted(list(no_decay))], "weight_decay": 0.0},
         ]
 
-        if train_config.optim == 'adamw' or train_config.optim == 'adam_kfac':
+        if train_config.optim == 'adamw' or train_config.optim == asdl.OPTIM_ADAM_KFAC:
             optimizer = torch.optim.AdamW(optim_groups, lr=train_config.learning_rate, betas=train_config.betas, weight_decay=train_config.weight_decay)
-        elif train_config.optim == 'adam_scratch':
+        elif train_config.optim == 'adam':
             optimizer = torch.optim.Adam(optim_groups, lr=train_config.learning_rate, betas=train_config.betas, weight_decay=train_config.weight_decay)
         else:
-            optimizer = torch.optim.SGD(optim_groups, lr=train_config.learning_rate, weight_decay=train_config.weight_decay)
+            optimizer = torch.optim.SGD(optim_groups, lr=train_config.learning_rate, weight_decay=train_config.weight_decay,momentum=train_config.momentum)
         grad_maker = asdl.create_grad_maker(self,optimizer,train_config)
         
         return optimizer, grad_maker
