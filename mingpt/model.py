@@ -260,7 +260,7 @@ class GPT(nn.Module):
         if train_config.optim == 'adamw':
             optimizer = torch.optim.AdamW(optim_groups, lr=train_config.learning_rate, betas=train_config.betas, weight_decay=train_config.weight_decay)
         elif train_config.optim == 'adam_scratch':
-            optimizer = ADAMOptimizer(optim_groups, lr=train_config.learning_rate, betas=train_config.betas, weight_decay=train_config.weight_decay)
+            optimizer = torch.optim.Adam(optim_groups, lr=train_config.learning_rate, betas=train_config.betas, weight_decay=train_config.weight_decay)
         elif train_config.optim == 'adam':
             optimizer = torch.optim.Adam(optim_groups, lr=train_config.learning_rate, betas=train_config.betas, weight_decay=train_config.weight_decay)
         else:
@@ -322,7 +322,7 @@ class GPT(nn.Module):
         return idx
 
 
-############
+#######xw#####
 from torch.optim import Optimizer
 
 class ADAMOptimizer(Optimizer):

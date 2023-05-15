@@ -73,7 +73,6 @@ class PreconditioningConfig:
     damping: float = 1.e-7
     ema_decay: float = _invalid_value
     ignore_modules: List[Any] = None
-    momentum: float = 0.9
     grad_norm_clip: float = -1
 
 class PreconditionedGradientMaker(GradientMaker):
@@ -146,13 +145,10 @@ class PreconditionedGradientMaker(GradientMaker):
         if self.config.grad_norm_clip != -1:
             nn.utils.clip_grad_norm_(self.model.parameters(), self.config.grad_norm_clip)
 
-        # if self.do_update_curvature(step):
-        #     self.update_curvature()
-        # if self.do_update_preconditioner(step):
-        #     self.update_preconditioner()
-
-        self.update_curvature()
-        self.update_preconditioner()
+        if self.do_update_curvature(step):
+            self.update_curvature()
+        if self.do_update_preconditioner(step):
+            self.update_preconditioner()
 
         self.precondition()
 
@@ -210,14 +206,6 @@ class PreconditionedGradientMaker(GradientMaker):
         if step is None:
             step = self.state['step']
         return step < warmup_steps or (step - warmup_steps) % interval == 0
-    
-    def add_momentum(self):
-        import torch
-        for p in self.model.parameters():
-            grad = p.grad.data
-            if not hasattr(p.grad, 'exp_avg'):
-                p.grad.exp_avg = torch.zeros_like(grad)
-            p.grad.exp_avg = torch.mul(p.grad.exp_avg, self.config.momentum) + (1 - self.config.momentum)*grad
 
 def get_update_schedule(num_total_steps: int,
                         update_ratio: float = 1.,

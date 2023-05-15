@@ -33,7 +33,6 @@ def create_grad_maker(model,optimizer,args):
                                     ema_decay = args.ema_decay,
                                     preconditioner_upd_interval=args.curvature_update_interval,
                                     curvature_upd_interval=args.curvature_update_interval,
-                                    momentum = args.momentum,
                                     grad_norm_clip = args.grad_norm_clip,
                                     #ignore_modules=[nn.BatchNorm1d,nn.BatchNorm2d,nn.BatchNorm3d,nn.LayerNorm],
                                     )

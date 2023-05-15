@@ -10,7 +10,6 @@ class AdamGradientMaker(PreconditionedGradientMaker):
     def __init__(self, model: nn.Module, config):
         super().__init__(model, config)
         self.eps = config.damping
-        self.momentum = config.momentum
         self.beta2 = 1 - config.ema_decay
 
     @torch.no_grad()

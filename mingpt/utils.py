@@ -117,7 +117,7 @@ def make_config(config, parser):
     parser.add_argument('--optim', default='adamw')
     parser.add_argument('--momentum', type=float, default=0)
 
-    parser.add_argument('--curvature_update_interval', type=int, default=1)
+    parser.add_argument('--curvature_update_interval', type=int, default=3)
     parser.add_argument('--damping', type=float, default=1e-8)
     parser.add_argument('--ema_decay', type=float, default=0.05)
 
