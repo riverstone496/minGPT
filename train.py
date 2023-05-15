@@ -3,7 +3,7 @@ Trains a character-level language model.
 """
 
 import os
-import sys
+import wandb
 
 import torch
 from torch.utils.data import Dataset
@@ -111,6 +111,10 @@ if __name__ == '__main__':
     def batch_end_callback(trainer):
 
         if trainer.iter_num % 10 == 0:
+            if config.data.wandb:
+                log = {'iteration': trainer.iter_num,
+                       'train_loss': trainer.loss.item()}
+                wandb.log(log)
             print(f"iter_dt {trainer.iter_dt * 1000:.2f}ms; iter {trainer.iter_num}: train loss {trainer.loss.item():.5f}")
 
         if trainer.iter_num % 500 == 0:

@@ -7,6 +7,7 @@ from ast import literal_eval
 
 import numpy as np
 import torch
+import wandb
 
 # -----------------------------------------------------------------------------
 
@@ -113,14 +114,27 @@ def make_config(config, parser):
     parser.add_argument('--model_type', type=str, default='gpt-mini')
     parser.add_argument('--num_workers', type=int, default=4)
 
+    parser.add_argument('--max_iters', type=int, default=1e+4)
+
     parser.add_argument('--optim', default='adamw')
     parser.add_argument('--momentum', type=float, default=0.9)
+
+    parser.add_argument('--scheduler', type=str, default='cosine')
 
     parser.add_argument('--curvature_update_interval', type=int, default=1)
     parser.add_argument('--damping', type=float, default=1e-8)
     parser.add_argument('--ema_decay', type=float, default=0.05)
 
+    parser.add_argument('--wandb', action='store_false', default=True)
+
     args = parser.parse_args()
+    if args.wandb:
+        wandb.init( config=vars(args).copy(),
+                    entity=os.environ.get('WANDB_ENTITY', None),
+                    project=os.environ.get('WANDB_PROJECT', None),
+                    )
+
+    
     config.trainer.batch_size = args.batch_size
     config.trainer.learning_rate = args.learning_rate
     config.trainer.weight_decay = args.weight_decay
@@ -133,8 +147,12 @@ def make_config(config, parser):
     config.trainer.curvature_update_interval = args.curvature_update_interval
     config.trainer.damping = args.damping
     config.trainer.ema_decay = args.ema_decay
+    config.trainer.max_iters=args.max_iters
+
+    config.trainer.scheduler = args.scheduler
 
     config.model.model_type = args.model_type
     config.data.datapath = args.datapath
+    config.data.wandb = args.wandb
 
     return config

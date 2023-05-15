@@ -11,6 +11,7 @@ from torch.utils.data.dataloader import DataLoader
 from mingpt.utils import CfgNode as CN
 
 import asdl
+from torch.optim.lr_scheduler import CosineAnnealingLR
 
 class Trainer:
 
@@ -66,6 +67,11 @@ class Trainer:
         # setup the optimizer
         self.optimizer, self.grad_maker = model.configure_optimizers(config)
 
+        if config.scheduler == 'cosine':
+            self.scheduler=CosineAnnealingLR(self.optimizer, T_max=config.max_iters,eta_min=0)
+        else:
+            self.scheduler = None
+
         # setup the dataloader
         train_loader = DataLoader(
             self.train_dataset,
@@ -102,6 +108,7 @@ class Trainer:
             self.grad_maker.setup_loss_repr(dummy_y[1])
             logits, self.loss = self.grad_maker.forward_and_backward()
             self.optimizer.step()
+            self.scheduler.step()
 
             logits, self.loss = model(x, y)
 
