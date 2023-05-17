@@ -17,6 +17,7 @@ from torch.nn import functional as F
 from mingpt.utils import CfgNode as CN
 
 import asdl
+from shampoo.shampoo import Shampoo,ShampooHyperParams
 
 # -----------------------------------------------------------------------------
 
@@ -261,6 +262,9 @@ class GPT(nn.Module):
             optimizer = torch.optim.AdamW(optim_groups, lr=train_config.learning_rate, betas=train_config.betas, weight_decay=train_config.weight_decay)
         elif train_config.optim == 'adam':
             optimizer = torch.optim.Adam(optim_groups, lr=train_config.learning_rate, betas=train_config.betas, weight_decay=train_config.weight_decay)
+        elif train_config.optim == 'kfac_shampoo':
+            hyper = ShampooHyperParams(beta2 = 1 - train_config.ema_decay, weight_decay = train_config.weight_decay,diagonal_eps=train_config.damping ,block_size=train_config.block_size)
+            optimizer = Shampoo(optim_groups, lr=train_config.learning_rate, momentum=train_config.momentum, hyperparams=hyper)
         else:
             optimizer = torch.optim.SGD(optim_groups, lr=train_config.learning_rate, weight_decay=train_config.weight_decay,momentum=train_config.momentum)
         grad_maker = asdl.create_grad_maker(self,optimizer,train_config)

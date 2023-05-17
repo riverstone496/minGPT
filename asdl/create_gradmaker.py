@@ -23,7 +23,9 @@ OPTIM_SWATS = 'swats'
 OPTIM_FOOF = 'foof'
 OPTIM_BOOB = 'boob'
 OPTIM_NGD_LAYER_WISE = 'ngd_layerwise'
+OPTIM_NGD_UNIT_WISE = 'ngd_unitwise'
 OPTIM_NGD_FULL = 'ngd_full'
+OPTIM_NGD_DIAG = 'ngd_diag'
 OPTIM_LARS = 'lars'
 OPTIM_ADAM_ASDL = 'adam_asdl'
 OPTIM_ADAM_KFAC = 'adam_kfac'
@@ -48,6 +50,10 @@ def create_grad_maker(model,optimizer,args):
         grad_maker = FullNaturalGradientMaker(model, config)
     elif args.optim == OPTIM_NGD_LAYER_WISE:
         grad_maker = LayerWiseNaturalGradientMaker(model, config)
+    elif args.optim == OPTIM_NGD_UNIT_WISE:
+        grad_maker = UnitWiseNaturalGradientMaker(model, config)
+    elif args.optim == OPTIM_NGD_DIAG:
+        grad_maker = DiagNaturalGradientMaker(model, config)
     elif args.optim == OPTIM_SHAMPOO:
         grad_maker = ShampooGradientMaker(model,config,block_size = args.block_size,)
     elif args.optim == OPTIM_SMW_NGD:
