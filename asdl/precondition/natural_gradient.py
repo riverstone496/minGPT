@@ -426,7 +426,7 @@ class NaturalGradientMaker(PreconditionedGradientMaker):
         if damping is None:
             damping = self.config.damping
         if exp is None:
-            exp = self.config.exp
+            exp = self.config.inv_exp
 
         for enum_shape, shape in enumerate(_module_level_shapes):
             for enum_module, name_module in enumerate(self.named_modules_for(shape)):

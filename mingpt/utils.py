@@ -116,7 +116,9 @@ def make_config(config, parser):
 
     parser.add_argument('--max_iters', type=int, default=1e+4)
 
-    parser.add_argument('--optim', default='adamw')
+    parser.add_argument('--inv_exp', type=float, default=-1)
+
+    parser.add_argument('--optim', default='adam_v2')
     parser.add_argument('--momentum', type=float, default=0.9)
 
     parser.add_argument('--block_size', type=int, default=128)
@@ -150,6 +152,8 @@ def make_config(config, parser):
     config.trainer.ema_decay = args.ema_decay
     config.trainer.max_iters=args.max_iters
     config.trainer.block_size = args.block_size
+
+    config.trainer.inv_exp = args.inv_exp
 
     config.trainer.scheduler = args.scheduler
 

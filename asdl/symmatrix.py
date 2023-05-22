@@ -5,7 +5,7 @@ from operator import iadd
 import numpy as np
 import torch
 from torch import Tensor
-from .utils import cholesky_inv, smw_inv
+from .utils import cholesky_inv, smw_inv, ComputePower
 from .vector import ParamVector
 
 __all__ = [
@@ -515,9 +515,13 @@ class Kron:
                 raise ValueError('A does not exist.')
             if not torch.all(self.A == 0):
                 if self.A_is_square:
-                    self.A_inv = cholesky_inv(self.A, damping_A)
+                    if exp == -1 or exp == 1:
+                        self.A_inv = cholesky_inv(self.A, damping_A)
+                    if exp == 2:
+                        self.A_inv = ComputePower(self.A, 4, ridge_epsilon=damping)
                 else:
-                    self.A_inv = smw_inv(self.A, damping_A)
+                    if exp == -1 or exp == 1:
+                        self.A_inv = smw_inv(self.A, damping_A)
                 if replace:
                     del self.A
                     self.A = None
@@ -526,9 +530,13 @@ class Kron:
                 raise ValueError('B does not exist.')
             if not torch.all(self.B == 0):
                 if self.B_is_square:
-                    self.B_inv = cholesky_inv(self.B, damping_B)
+                    if exp == -1 or exp == 1:
+                        self.B_inv = cholesky_inv(self.B, damping_B)
+                    if exp == 2:
+                        self.B_inv = ComputePower(self.B, 4, ridge_epsilon=damping)
                 else:
-                    self.B_inv = smw_inv(self.B, damping_B)
+                    if exp == -1 or exp == 1:
+                        self.B_inv = smw_inv(self.B, damping_B)
                 if replace:
                     del self.B
                     self.B = None

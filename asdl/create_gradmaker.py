@@ -37,6 +37,7 @@ def create_grad_maker(model,optimizer,args):
                                     preconditioner_upd_interval=args.curvature_update_interval,
                                     curvature_upd_interval=args.curvature_update_interval,
                                     grad_norm_clip = args.grad_norm_clip,
+                                    inv_exp = args.inv_exp,
                                     #ignore_modules=[nn.BatchNorm1d,nn.BatchNorm2d,nn.BatchNorm3d,nn.LayerNorm],
                                     )
 
