@@ -75,6 +75,7 @@ class PreconditioningConfig:
     ignore_modules: List[Any] = None
     grad_norm_clip: float = -1
     momentum: float = 0.9
+    inv_exp: float = _invalid_value
 
 class PreconditionedGradientMaker(GradientMaker):
     _supported_classes = None

@@ -300,18 +300,18 @@ class SymMatrix:
 
         return pointer
 
-    def update_inv(self, damping=_default_damping, replace=False):
+    def update_inv(self, damping=_default_damping, replace=False, exp = None):
         if self.has_data and not torch.all(self.data == 0):
             self.inv = cholesky_inv(self.data, damping)
             if replace:
                 del self.data
                 self.data = None
         if self.has_kron:
-            self.kron.update_inv(damping, replace=replace)
+            self.kron.update_inv(damping, replace=replace, exp=exp)
         if self.has_diag:
-            self.diag.update_inv(damping, replace=replace)
+            self.diag.update_inv(damping, replace=replace, exp=exp)
         if self.has_unit:
-            self.unit.update_inv(damping, replace=replace)
+            self.unit.update_inv(damping, replace=replace, exp=exp)
 
     def mvp(self, vectors: ParamVector = None,
             vec_weight: torch.Tensor = None, vec_bias: torch.Tensor = None,
@@ -496,7 +496,7 @@ class Kron:
         pointer = unflatten(self.B, pointer)
         return pointer
 
-    def update_inv(self, damping=_default_damping, calc_A_inv=True, calc_B_inv=True, eps=1e-7, replace=False):
+    def update_inv(self, damping=_default_damping, calc_A_inv=True, calc_B_inv=True, eps=1e-7, replace=False, exp=None):
         if not self.has_data:
             raise ValueError('data do not exist.')
         damping_A = damping_B = damping
@@ -684,7 +684,7 @@ class UnitWise:
             pointer = unflatten(self.data, pointer)
         return pointer
 
-    def update_inv(self, damping=_default_damping, replace=False):
+    def update_inv(self, damping=_default_damping, replace=False, exp=None):
         if not self.has_data:
             raise ValueError('data do not exist.')
         data = self.data
@@ -834,7 +834,7 @@ class Diag:
             pointer = unflatten(self.bias, pointer)
         return pointer
 
-    def update_inv(self, damping=_default_damping, replace=False):
+    def update_inv(self, damping=_default_damping, replace=False, exp=None):
         if self.has_weight:
             if not torch.all(self.weight == 0):
                 self.weight_inv = 1 / (self.weight + damping)

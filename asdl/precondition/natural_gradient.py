@@ -417,7 +417,7 @@ class NaturalGradientMaker(PreconditionedGradientMaker):
         if self.do_accumulate and self.world_size > 1:         
             self.reduce_scatter_curvature()
 
-    def update_preconditioner(self, damping=None, module_name=None, kron=None, zero_curvature=False, partition_aware=False):
+    def update_preconditioner(self, damping=None, module_name=None, kron=None, zero_curvature=False, partition_aware=False, exp=None):
         if not self.do_accumulate:
             return
 
@@ -425,6 +425,8 @@ class NaturalGradientMaker(PreconditionedGradientMaker):
             kron = ['A', 'B']
         if damping is None:
             damping = self.config.damping
+        if exp is None:
+            exp = self.config.exp
 
         for enum_shape, shape in enumerate(_module_level_shapes):
             for enum_module, name_module in enumerate(self.named_modules_for(shape)):
@@ -452,9 +454,9 @@ class NaturalGradientMaker(PreconditionedGradientMaker):
                     with nvtx.range(event + "_" + name):
                         if self.is_module_for_inv_and_precondition(module):
                             if shape in [SHAPE_KRON, SHAPE_SWIFT_KRON]:
-                                matrix.update_inv(damping, calc_A_inv='A' in kron, calc_B_inv='B' in kron)
+                                matrix.update_inv(damping, calc_A_inv='A' in kron, calc_B_inv='B' in kron, exp = exp)
                             else:
-                                matrix.update_inv(damping)
+                                matrix.update_inv(damping, exp = exp)
 
                         if zero_curvature:
                             with torch.no_grad():
@@ -471,7 +473,7 @@ class NaturalGradientMaker(PreconditionedGradientMaker):
 
         fisher = self._get_full_fisher()
         if fisher is not None:
-            fisher.update_inv(damping)
+            fisher.update_inv(damping, exp=exp)
             if zero_curvature:
                 with torch.no_grad():
                     fisher.mul_(0)

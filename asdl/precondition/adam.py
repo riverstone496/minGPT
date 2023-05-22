@@ -11,6 +11,7 @@ class AdamGradientMaker(PreconditionedGradientMaker):
         super().__init__(model, config)
         self.eps = config.damping
         self.beta2 = 1 - config.ema_decay
+        self.exp = config.inv_exp
 
     @torch.no_grad()
     def update_curvature(self):
@@ -35,7 +36,10 @@ class AdamGradientMaker(PreconditionedGradientMaker):
         exp_avg_sq_hat = exp_avg_sq * bias_correction2
                 
         setattr(module_weight, 'exp_avg', exp_avg_sq)
-        denom = exp_avg_sq_hat.sqrt() + self.eps
+        if self.exp == -1:
+            denom = exp_avg_sq_hat.sqrt() + self.eps
+        if self.exp == 1:
+            denom = exp_avg_sq_hat + self.eps
         setattr(module_weight, 'curvature', denom)
 
     @torch.no_grad()

@@ -299,7 +299,7 @@ class ShampooGradientMaker(PreconditionedGradientMaker):
 
 class Preconditioner:
     def __init__(self, param: Parameter, config: PreconditioningConfig,
-                 block_size: int = 512, inverse_exponent: int = _invalid,
+                 block_size: int = 512,
                  best_effort_shape_interpretation: bool = False, init_scale: float = 1e-12):
         self.config = config
         self.param = param
@@ -319,7 +319,7 @@ class Preconditioner:
         self.preconditioners = [
             torch.eye(s[0], device=device) for s in shapes
         ]
-        self.inverse_exponent = inverse_exponent
+        self.inverse_exponent = config.inverse_exponent
 
     def update_statistics(self):
         """
