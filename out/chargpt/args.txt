@@ -1,1 +1,1 @@
-/Users/satoki/Documents/lab/minGPT/train.py --optim adam_asdl
+/Users/satoki/Documents/lab/minGPT/test.py --wandb

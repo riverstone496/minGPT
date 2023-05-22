@@ -263,7 +263,7 @@ class GPT(nn.Module):
         elif train_config.optim == 'adam':
             optimizer = torch.optim.Adam(optim_groups, lr=train_config.learning_rate, betas=train_config.betas, weight_decay=train_config.weight_decay)
         elif train_config.optim == 'kfac_shampoo':
-            hyper = ShampooHyperParams(beta2 = 1 - train_config.ema_decay, weight_decay = train_config.weight_decay,diagonal_eps=train_config.damping ,block_size=train_config.block_size)
+            hyper = ShampooHyperParams(beta2 = 1 - train_config.ema_decay, weight_decay = train_config.weight_decay,matrix_eps=train_config.damping ,block_size=train_config.block_size, start_preconditioning_step=train_config.curvature_update_interval, preconditioning_compute_steps=train_config.curvature_update_interval)
             optimizer = Shampoo(optim_groups, lr=train_config.learning_rate, momentum=train_config.momentum, hyperparams=hyper)
         else:
             optimizer = torch.optim.SGD(optim_groups, lr=train_config.learning_rate, weight_decay=train_config.weight_decay,momentum=train_config.momentum)

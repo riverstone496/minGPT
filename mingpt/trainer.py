@@ -122,3 +122,23 @@ class Trainer:
             # termination conditions
             if config.max_iters is not None and self.iter_num >= config.max_iters:
                 break
+
+            # eigenlist = []
+            # for module in self.grad_maker.module_dict.values():
+                
+            #     matrix = self.grad_maker._get_module_symmatrix(module, asdl.SHAPE_KRON)
+            #     if matrix is None:
+            #         continue
+            #     A,B=matrix.A,matrix.B
+
+            #     LA = torch.linalg.eigvalsh(A + 1e-8*torch.eye(A.size()[0], A.size()[1]).cuda())
+            #     LB = torch.linalg.eigvalsh(B + 1e-8*torch.eye(B.size()[0], B.size()[1]).cuda())
+            #     LA.sort(descending=True)
+            #     LB.sort(descending=True)
+
+            #     for a in LA[:10]:
+            #         for b in LB[:10]:
+            #             eigenlist.append(float(a*b))
+
+            # eigenlist.sort(reverse=True)
+            # print(self.iter_num,eigenlist[:20])
