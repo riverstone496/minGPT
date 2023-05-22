@@ -319,7 +319,7 @@ class Preconditioner:
         self.preconditioners = [
             torch.eye(s[0], device=device) for s in shapes
         ]
-        self.inverse_exponent = config.inverse_exponent
+        self.inverse_exponent = config.inv_exp
 
     def update_statistics(self):
         """

@@ -29,6 +29,8 @@ OPTIM_NGD_DIAG = 'ngd_diag'
 OPTIM_LARS = 'lars'
 OPTIM_ADAM_ASDL = 'adam_asdl'
 OPTIM_ADAM_KFAC = 'adam_kfac'
+OPTIM_ADAM_SHAMPOO = 'adam_shampoo'
+OPTIM_SHAMPOO_KFAC = 'shampoo_kfac'
 
 def create_grad_maker(model,optimizer,args):
     config = PreconditioningConfig(data_size=args.batch_size,
@@ -43,7 +45,7 @@ def create_grad_maker(model,optimizer,args):
 
     if args.optim == OPTIM_KFAC_MC:
         grad_maker = KfacGradientMaker(model, config)
-    elif args.optim == OPTIM_KFAC_EMP or args.optim == OPTIM_ADAM_KFAC:
+    elif args.optim == OPTIM_KFAC_EMP or args.optim == OPTIM_ADAM_KFAC or args.optim == OPTIM_SHAMPOO_KFAC:
         grad_maker = KfacEmpGradientMaker(model, config)
     elif args.optim == OPTIM_ADAM_ASDL:
         grad_maker = AdamGradientMaker(model, config)
@@ -55,7 +57,7 @@ def create_grad_maker(model,optimizer,args):
         grad_maker = UnitWiseNaturalGradientMaker(model, config)
     elif args.optim == OPTIM_NGD_DIAG:
         grad_maker = DiagNaturalGradientMaker(model, config)
-    elif args.optim == OPTIM_SHAMPOO:
+    elif args.optim == OPTIM_SHAMPOO or args.optim == OPTIM_ADAM_SHAMPOO:
         grad_maker = ShampooGradientMaker(model,config,block_size = args.block_size,)
     elif args.optim == OPTIM_SMW_NGD:
         grad_maker = SmwEmpNaturalGradientMaker(model, config)

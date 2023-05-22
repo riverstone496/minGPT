@@ -3,7 +3,7 @@ Simple training loop; Boilerplate that could apply to any arbitrary neural netwo
 so nothing in this file really has anything to do with GPT specifically.
 """
 
-import time
+import time,math
 from collections import defaultdict
 
 import torch
@@ -121,6 +121,10 @@ class Trainer:
 
             # termination conditions
             if config.max_iters is not None and self.iter_num >= config.max_iters:
+                break
+
+            if math.isnan(self.loss) or self.loss > 100:
+                print('math.isnan(self.loss) or self.loss > 100')
                 break
 
             # eigenlist = []

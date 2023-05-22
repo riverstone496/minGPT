@@ -117,6 +117,7 @@ def make_config(config, parser):
     parser.add_argument('--max_iters', type=int, default=1e+4)
 
     parser.add_argument('--inv_exp', type=float, default=-1)
+    parser.add_argument('--shampoo_damping', type=float, default=1e-8)
 
     parser.add_argument('--optim', default='adam_v2')
     parser.add_argument('--momentum', type=float, default=0.9)
@@ -154,6 +155,7 @@ def make_config(config, parser):
     config.trainer.block_size = args.block_size
 
     config.trainer.inv_exp = args.inv_exp
+    config.trainer.shampoo_damping = args.shampoo_damping
 
     config.trainer.scheduler = args.scheduler
 

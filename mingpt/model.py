@@ -258,12 +258,12 @@ class GPT(nn.Module):
             {"params": [param_dict[pn] for pn in sorted(list(no_decay))], "weight_decay": 0.0},
         ]
 
-        if train_config.optim == 'adamw' or train_config.optim == asdl.OPTIM_ADAM_KFAC:
+        if train_config.optim == 'adamw' or train_config.optim == asdl.OPTIM_ADAM_KFAC or train_config.optim == asdl.OPTIM_ADAM_SHAMPOO:
             optimizer = torch.optim.AdamW(optim_groups, lr=train_config.learning_rate, betas=train_config.betas, weight_decay=train_config.weight_decay)
         elif train_config.optim == 'adam':
             optimizer = torch.optim.Adam(optim_groups, lr=train_config.learning_rate, betas=train_config.betas, weight_decay=train_config.weight_decay)
-        elif train_config.optim == 'kfac_shampoo':
-            hyper = ShampooHyperParams(beta2 = 1 - train_config.ema_decay, weight_decay = train_config.weight_decay,matrix_eps=train_config.damping ,block_size=train_config.block_size, start_preconditioning_step=train_config.curvature_update_interval, preconditioning_compute_steps=train_config.curvature_update_interval)
+        elif train_config.optim == asdl.OPTIM_SHAMPOO_KFAC:
+            hyper = ShampooHyperParams(beta2 = 1 - train_config.ema_decay, weight_decay = train_config.weight_decay,matrix_eps=train_config.shampoo_damping ,block_size=train_config.block_size, start_preconditioning_step=train_config.curvature_update_interval, preconditioning_compute_steps=train_config.curvature_update_interval)
             optimizer = Shampoo(optim_groups, lr=train_config.learning_rate, momentum=train_config.momentum, hyperparams=hyper)
         else:
             optimizer = torch.optim.SGD(optim_groups, lr=train_config.learning_rate, weight_decay=train_config.weight_decay,momentum=train_config.momentum)
