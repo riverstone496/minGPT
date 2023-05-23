@@ -7,7 +7,10 @@ __pycache__/
 model.pt
 config.json
 memo.txt
-test.py
 .vscode
 yaml
 job.sh
+out/
+lab
+distribute.py
+test.py
