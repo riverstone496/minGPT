@@ -5,7 +5,7 @@ from operator import iadd
 import numpy as np
 import torch
 from torch import Tensor
-from .utils import cholesky_inv, smw_inv, ComputePower
+from .utils import cholesky_inv, smw_inv, ComputePower, square_inv
 from .vector import ParamVector
 
 __all__ = [
@@ -300,18 +300,18 @@ class SymMatrix:
 
         return pointer
 
-    def update_inv(self, damping=_default_damping, replace=False, exp = None):
+    def update_inv(self, damping=_default_damping, replace=False, exp = None, dmp_technique='heuristics'):
         if self.has_data and not torch.all(self.data == 0):
             self.inv = cholesky_inv(self.data, damping)
             if replace:
                 del self.data
                 self.data = None
         if self.has_kron:
-            self.kron.update_inv(damping, replace=replace, exp=exp)
+            self.kron.update_inv(damping, replace=replace, exp=exp, dmp_technique=dmp_technique)
         if self.has_diag:
-            self.diag.update_inv(damping, replace=replace, exp=exp)
+            self.diag.update_inv(damping, replace=replace, exp=exp, dmp_technique=dmp_technique)
         if self.has_unit:
-            self.unit.update_inv(damping, replace=replace, exp=exp)
+            self.unit.update_inv(damping, replace=replace, exp=exp, dmp_technique=dmp_technique)
 
     def mvp(self, vectors: ParamVector = None,
             vec_weight: torch.Tensor = None, vec_bias: torch.Tensor = None,
@@ -496,7 +496,7 @@ class Kron:
         pointer = unflatten(self.B, pointer)
         return pointer
 
-    def update_inv(self, damping=_default_damping, calc_A_inv=True, calc_B_inv=True, eps=1e-7, replace=False, exp=None):
+    def update_inv(self, damping=_default_damping, calc_A_inv=True, calc_B_inv=True, eps=1e-7, replace=False, exp=None, dmp_technique='heuristics'):
         if not self.has_data:
             raise ValueError('data do not exist.')
         damping_A = damping_B = damping
@@ -508,7 +508,11 @@ class Kron:
                 r = damping**0.5
                 damping_A = max(r * pi, eps)
                 damping_B = max(r / pi, eps)
-
+        if dmp_technique == 'max_eigen':
+            eigenvaluesA, _ = torch.linalg.eig(self.A)
+            eigenvaluesB, _ = torch.linalg.eig(self.B)
+            damping_A = damping*eigenvaluesA.real.max()
+            damping_B = damping*eigenvaluesB.real.max()
 
         if calc_A_inv:
             if not self.has_A:
@@ -517,8 +521,8 @@ class Kron:
                 if self.A_is_square:
                     if exp == -1 or exp == 1:
                         self.A_inv = cholesky_inv(self.A, damping_A)
-                    if exp == 2:
-                        self.A_inv = ComputePower(self.A, 4, ridge_epsilon=damping)
+                    else:
+                        self.A_inv = ComputePower(self.A, exp, ridge_epsilon=damping)
                 else:
                     if exp == -1 or exp == 1:
                         self.A_inv = smw_inv(self.A, damping_A)
@@ -532,8 +536,8 @@ class Kron:
                 if self.B_is_square:
                     if exp == -1 or exp == 1:
                         self.B_inv = cholesky_inv(self.B, damping_B)
-                    if exp == 2:
-                        self.B_inv = ComputePower(self.B, 4, ridge_epsilon=damping)
+                    else:
+                        self.B_inv = ComputePower(self.B, exp, ridge_epsilon=damping)
                 else:
                     if exp == -1 or exp == 1:
                         self.B_inv = smw_inv(self.B, damping_B)
@@ -692,7 +696,7 @@ class UnitWise:
             pointer = unflatten(self.data, pointer)
         return pointer
 
-    def update_inv(self, damping=_default_damping, replace=False, exp=None):
+    def update_inv(self, damping=_default_damping, replace=False, exp=None, dmp_technique='heuristics'):
         if not self.has_data:
             raise ValueError('data do not exist.')
         data = self.data
@@ -842,7 +846,7 @@ class Diag:
             pointer = unflatten(self.bias, pointer)
         return pointer
 
-    def update_inv(self, damping=_default_damping, replace=False, exp=None):
+    def update_inv(self, damping=_default_damping, replace=False, exp=None, dmp_technique='heuristics'):
         if self.has_weight:
             if not torch.all(self.weight == 0):
                 self.weight_inv = 1 / (self.weight + damping)

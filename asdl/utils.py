@@ -6,6 +6,8 @@ from torch.nn import functional as F
 from torch.utils.data import BatchSampler, Subset, DataLoader
 from torch.cuda import nvtx
 
+import scipy.linalg
+
 torch_function_class = F.cross_entropy.__class__
 
 _REQUIRES_GRAD_ATTR = '_original_requires_grad'
@@ -114,6 +116,20 @@ def smw_inv(x, damping=1e-7):
     xt_Ginv_x = x.T @ Ginv_x  # d x d
     return (I - xt_Ginv_x) / damping  # d x d
 
+@torch.no_grad()
+def square_inv(X,p,damping):
+    diag = torch.diagonal(X)
+    diag += damping    
+    evals, evecs = torch.linalg.eig(X) 
+    evals = evals.real
+    evecs = evecs.real
+    if (evals < 0).any():
+        print('X has negative eigenvalue')
+        evals = torch.clamp(evals, min=0)
+    evpow = evals**(-1/p) 
+    X = torch.matmul (evecs, torch.matmul (torch.diag (evpow), torch.inverse (evecs)))
+    diag -= damping
+    return X
 
 @torch.no_grad()
 def ComputePower(mat_g,

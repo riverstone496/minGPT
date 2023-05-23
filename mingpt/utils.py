@@ -118,6 +118,7 @@ def make_config(config, parser):
 
     parser.add_argument('--inv_exp', type=float, default=-1)
     parser.add_argument('--shampoo_damping', type=float, default=1e-8)
+    parser.add_argument('--dmp_technique', type=str, default='heuristics')
 
     parser.add_argument('--optim', default='adam_v2')
     parser.add_argument('--momentum', type=float, default=0.9)
@@ -156,6 +157,7 @@ def make_config(config, parser):
 
     config.trainer.inv_exp = args.inv_exp
     config.trainer.shampoo_damping = args.shampoo_damping
+    config.trainer.dmp_technique = args.dmp_technique
 
     config.trainer.scheduler = args.scheduler
 

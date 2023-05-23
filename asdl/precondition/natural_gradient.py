@@ -427,6 +427,7 @@ class NaturalGradientMaker(PreconditionedGradientMaker):
             damping = self.config.damping
         if exp is None:
             exp = self.config.inv_exp
+        dmp_technique = self.config.dmp_technique
 
         for enum_shape, shape in enumerate(_module_level_shapes):
             for enum_module, name_module in enumerate(self.named_modules_for(shape)):
@@ -454,7 +455,7 @@ class NaturalGradientMaker(PreconditionedGradientMaker):
                     with nvtx.range(event + "_" + name):
                         if self.is_module_for_inv_and_precondition(module):
                             if shape in [SHAPE_KRON, SHAPE_SWIFT_KRON]:
-                                matrix.update_inv(damping, calc_A_inv='A' in kron, calc_B_inv='B' in kron, exp = exp)
+                                matrix.update_inv(damping, calc_A_inv='A' in kron, calc_B_inv='B' in kron, exp = exp, dmp_technique=dmp_technique)
                             else:
                                 matrix.update_inv(damping, exp = exp)
 
