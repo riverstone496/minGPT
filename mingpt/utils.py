@@ -7,6 +7,8 @@ from ast import literal_eval
 
 import numpy as np
 import torch
+from torch import nn
+
 import wandb
 
 # -----------------------------------------------------------------------------
@@ -120,8 +122,11 @@ def make_config(config, parser):
     parser.add_argument('--shampoo_damping', type=float, default=1e-8)
     parser.add_argument('--dmp_technique', type=str, default='heuristics')
 
+    parser.add_argument('--ndigit', type=int, default=2)
+
     parser.add_argument('--optim', default='adam_v2')
     parser.add_argument('--momentum', type=float, default=0.9)
+    parser.add_argument('--ignore_modules', type=str, default='None')
 
     parser.add_argument('--block_size', type=int, default=128)
     parser.add_argument('--scheduler', type=str, default='cosine')
@@ -139,6 +144,7 @@ def make_config(config, parser):
                     project=os.environ.get('WANDB_PROJECT', None),
                     )
 
+    args.ignore_modules = args.ignore_modules.split(',')
     
     config.trainer.batch_size = args.batch_size
     config.trainer.learning_rate = args.learning_rate
@@ -147,6 +153,7 @@ def make_config(config, parser):
     config.trainer.grad_norm_clip = args.grad_norm_clip
     config.trainer.num_workers = args.num_workers
     config.trainer.optim = args.optim
+    config.trainer.ignore_modules = args.ignore_modules
 
     config.trainer.momentum = args.momentum
     config.trainer.curvature_update_interval = args.curvature_update_interval
@@ -164,5 +171,6 @@ def make_config(config, parser):
     config.model.model_type = args.model_type
     config.data.datapath = args.datapath
     config.data.wandb = args.wandb
+    config.data.ndigit = args.ndigit
 
     return config

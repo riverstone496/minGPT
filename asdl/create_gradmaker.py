@@ -33,6 +33,9 @@ OPTIM_ADAM_SHAMPOO = 'adam_shampoo'
 OPTIM_SHAMPOO_KFAC = 'shampoo_kfac'
 
 def create_grad_maker(model,optimizer,args):
+    if 'None' in args.ignore_modules:
+        args.ignore_modules = []
+    args.ignore_modules.extend([nn.BatchNorm1d,nn.BatchNorm2d,nn.BatchNorm3d,nn.LayerNorm])
     config = PreconditioningConfig(data_size=args.batch_size,
                                     damping=args.damping,
                                     ema_decay = args.ema_decay,
@@ -40,8 +43,8 @@ def create_grad_maker(model,optimizer,args):
                                     curvature_upd_interval=args.curvature_update_interval,
                                     grad_norm_clip = args.grad_norm_clip,
                                     inv_exp = args.inv_exp,
-                                    dmp_technique = args.dmp_technique
-                                    #ignore_modules=[nn.BatchNorm1d,nn.BatchNorm2d,nn.BatchNorm3d,nn.LayerNorm],
+                                    dmp_technique = args.dmp_technique,
+                                    ignore_modules=args.ignore_modules,
                                     )
 
     if args.optim == OPTIM_KFAC_MC:
