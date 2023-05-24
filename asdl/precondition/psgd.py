@@ -45,7 +45,7 @@ class PsgdGradientMaker(PreconditionedGradientMaker):
         use_functorch (bool, optional): If True, the Hessian-vector product will be calculated
             by using `functorch <https://pytorch.org/functorch/stable/>`_. (default: False)
     """
-    _supported_classes = (nn.Linear, nn.Conv2d)
+    _supported_classes = (nn.Linear, nn.Conv2d, nn.Embedding)
 
     def __init__(self, model: nn.Module, config: PreconditioningConfig,
                  precond_lr: float = 0.01, init_scale: float = 1., use_functorch=False):
@@ -137,7 +137,7 @@ class KronPsgdGradientMaker(PsgdGradientMaker):
         for module in self.module_dict.children():
             in_dim = int(np.prod(module.weight.shape[1:]))
             out_dim = module.weight.shape[0]
-            if module.bias is not None:
+            if hasattr(module,'bias') and module.bias is not None:
                 in_dim += 1
             Ql = init_scale * torch.eye(out_dim, device=self.device)
             Qr = init_scale * torch.eye(in_dim, device=self.device)
@@ -151,7 +151,10 @@ class KronPsgdGradientMaker(PsgdGradientMaker):
             if isinstance(module, nn.Conv2d):
                 dX = dX.flatten(start_dim=1)
                 dG = dG.flatten(start_dim=1)
-            if module.bias is not None:
+            # if isinstance(module, nn.Conv2d):
+            #     dX = dX.flatten(start_dim=-2)
+            #     dG = dG.flatten(start_dim=-2)
+            if hasattr(module,'bias') and module.bias is not None:
                 dX = torch.cat([dX, dxs.pop(0).unsqueeze(-1)], dim=1)
                 dG = torch.cat([dG, dgs.pop(0).unsqueeze(-1)], dim=1)
             update_precond_kron(*self.cholesky_factors[module], dX, dG, step=self.precond_lr)
@@ -168,10 +171,12 @@ class KronPsgdGradientMaker(PsgdGradientMaker):
             G = grads.pop(0)
             if isinstance(module, nn.Conv2d):
                 G = G.flatten(start_dim=1)
-            if module.bias is not None:
+            # if isinstance(module, nn.Embedding):
+            #     G = G.flatten(start_dim=-2)
+            if hasattr(module,'bias') and module.bias is not None:
                 G = torch.cat([G, grads.pop(0).unsqueeze(-1)], dim=1)
             G = precond_grad_kron(*self.cholesky_factors[module], G)
-            if module.bias is not None:
+            if hasattr(module,'bias') and module.bias is not None:
                 module.weight.grad.copy_(G[:, :-1].view_as(module.weight))
                 module.bias.grad.copy_(G[:, -1].view_as(module.bias))
             else:

@@ -74,6 +74,9 @@ class PreconditioningConfig:
     ema_decay: float = _invalid_value
     ignore_modules: List[Any] = None
     grad_norm_clip: float = -1
+    grad_value_clip: float = -1
+    after_grad_norm_clip: float = -1
+    after_grad_value_clip: float = -1
     momentum: float = 0.9
     inv_exp: float = _invalid_value
     dmp_technique: str = 'heuristics'
@@ -145,6 +148,10 @@ class PreconditionedGradientMaker(GradientMaker):
             self.forward()
             self.backward()
 
+        if self.config.grad_value_clip != -1:
+            print(self.config.grad_value_clip)
+            nn.utils.clip_grad_value_(self.model.parameters(), self.config.grad_value_clip)
+
         if self.config.grad_norm_clip != -1:
             nn.utils.clip_grad_norm_(self.model.parameters(), self.config.grad_norm_clip)
 
@@ -154,6 +161,12 @@ class PreconditionedGradientMaker(GradientMaker):
             self.update_preconditioner()
 
         self.precondition()
+
+        if self.config.after_grad_value_clip != -1:
+            nn.utils.clip_grad_value_(self.model.parameters(), self.config.after_grad_value_clip)
+
+        if self.config.after_grad_norm_clip != -1:
+            nn.utils.clip_grad_norm_(self.model.parameters(), self.config.after_grad_norm_clip)
 
         self._teardown()
 

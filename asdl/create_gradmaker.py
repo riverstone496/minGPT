@@ -42,6 +42,9 @@ def create_grad_maker(model,optimizer,args):
                                     preconditioner_upd_interval=args.curvature_update_interval,
                                     curvature_upd_interval=args.curvature_update_interval,
                                     grad_norm_clip = args.grad_norm_clip,
+                                    grad_value_clip = args.grad_value_clip,
+                                    after_grad_norm_clip = args.after_grad_norm_clip,
+                                    after_grad_value_clip = args.after_grad_value_clip,
                                     inv_exp = args.inv_exp,
                                     dmp_technique = args.dmp_technique,
                                     ignore_modules=args.ignore_modules,
@@ -68,7 +71,7 @@ def create_grad_maker(model,optimizer,args):
     elif args.optim == OPTIM_FULL_PSGD:
         grad_maker = PsgdGradientMaker(model)
     elif args.optim == OPTIM_KRON_PSGD:
-        grad_maker = KronPsgdGradientMaker(model,config)
+        grad_maker = KronPsgdGradientMaker(model,config,precond_lr=args.precond_lr)
     elif args.optim == OPTIM_NEWTON:
         grad_maker = NewtonGradientMaker(model, config)
     elif args.optim == OPTIM_ABS_NEWTON:

@@ -201,7 +201,7 @@ if __name__ == '__main__':
                 wandb.log(log)
             print(f"iter_dt {trainer.iter_dt * 1000:.2f}ms; iter {trainer.iter_num}: train loss {trainer.loss.item():.5f}")
 
-        if trainer.iter_num % 100 == 0:
+        if trainer.iter_num % 10 == 0:
             # evaluate both the train and test score
             train_max_batches = {1: None, 2: None, 3: 5}[config.data.ndigit] # if ndigit=2 we can afford the whole train set, ow no
             model.eval()

@@ -110,7 +110,11 @@ def make_config(config, parser):
     parser.add_argument('--learning_rate', type=float, default=5e-5)
     parser.add_argument('--weight_decay', type=float, default=0.1)
     parser.add_argument('--beta2', type=float, default=0.95)
+    
     parser.add_argument('--grad_norm_clip', type=float, default=1.0)
+    parser.add_argument('--grad_value_clip', type=float, default=-1)
+    parser.add_argument('--after_grad_norm_clip', type=float, default=-1.0)
+    parser.add_argument('--after_grad_value_clip', type=float, default=-1.0)
 
     parser.add_argument('--datapath', type=str, default='./data/enwik8')
     parser.add_argument('--model_type', type=str, default='gpt-mini')
@@ -123,6 +127,7 @@ def make_config(config, parser):
     parser.add_argument('--dmp_technique', type=str, default='heuristics')
 
     parser.add_argument('--ndigit', type=int, default=2)
+    parser.add_argument('--precond_lr', type=float, default=0.01)
 
     parser.add_argument('--optim', default='adam_v2')
     parser.add_argument('--momentum', type=float, default=0.9)
@@ -150,10 +155,16 @@ def make_config(config, parser):
     config.trainer.learning_rate = args.learning_rate
     config.trainer.weight_decay = args.weight_decay
     config.trainer.betas = (args.momentum, args.beta2)
+
     config.trainer.grad_norm_clip = args.grad_norm_clip
+    config.trainer.grad_value_clip = args.grad_value_clip
+    config.trainer.after_grad_norm_clip = args.after_grad_norm_clip
+    config.trainer.after_grad_value_clip = args.after_grad_value_clip
+
     config.trainer.num_workers = args.num_workers
     config.trainer.optim = args.optim
     config.trainer.ignore_modules = args.ignore_modules
+    config.trainer.precond_lr = args.precond_lr
 
     config.trainer.momentum = args.momentum
     config.trainer.curvature_update_interval = args.curvature_update_interval
