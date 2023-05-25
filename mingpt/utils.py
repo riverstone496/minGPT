@@ -129,7 +129,7 @@ def make_config(config, parser):
     parser.add_argument('--ndigit', type=int, default=2)
     parser.add_argument('--precond_lr', type=float, default=0.01)
 
-    parser.add_argument('--optim', default='adam_v2')
+    parser.add_argument('--optim', default='adam_asdl')
     parser.add_argument('--momentum', type=float, default=0.9)
     parser.add_argument('--ignore_modules', type=str, default='None')
 
