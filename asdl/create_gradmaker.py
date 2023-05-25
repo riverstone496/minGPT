@@ -31,6 +31,7 @@ OPTIM_ADAM_ASDL = 'adam_asdl'
 OPTIM_ADAM_KFAC = 'adam_kfac'
 OPTIM_ADAM_SHAMPOO = 'adam_shampoo'
 OPTIM_SHAMPOO_KFAC = 'shampoo_kfac'
+OPTIM_ADAM_PSGD = 'adam_psgd'
 
 def create_grad_maker(model,optimizer,args):
     if 'None' in args.ignore_modules:
@@ -70,7 +71,7 @@ def create_grad_maker(model,optimizer,args):
         grad_maker = SmwEmpNaturalGradientMaker(model, config)
     elif args.optim == OPTIM_FULL_PSGD:
         grad_maker = PsgdGradientMaker(model)
-    elif args.optim == OPTIM_KRON_PSGD:
+    elif args.optim == OPTIM_KRON_PSGD or args.optim == OPTIM_ADAM_PSGD:
         grad_maker = KronPsgdGradientMaker(model,config,precond_lr=args.precond_lr)
     elif args.optim == OPTIM_NEWTON:
         grad_maker = NewtonGradientMaker(model, config)
