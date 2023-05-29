@@ -32,6 +32,7 @@ OPTIM_ADAM_KFAC = 'adam_kfac'
 OPTIM_ADAM_SHAMPOO = 'adam_shampoo'
 OPTIM_SHAMPOO_KFAC = 'shampoo_kfac'
 OPTIM_ADAM_PSGD = 'adam_psgd'
+OPTIM_SOPHIA = 'sophia'
 
 def create_grad_maker(model,optimizer,args):
     if 'None' in args.ignore_modules:
@@ -83,6 +84,8 @@ def create_grad_maker(model,optimizer,args):
         grad_maker = CurveBallGradientMaker(model, config)
     elif args.optim == OPTIM_SENG:
         grad_maker = SengGradientMaker(model,config=config)
+    elif args.optim == OPTIM_ADAM_ASDL:
+        grad_maker = AdamGradientMaker(model, config)
     else:
         grad_maker = PreconditionedGradientMaker(model,config)
 

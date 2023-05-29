@@ -18,6 +18,7 @@ from mingpt.utils import CfgNode as CN
 
 import asdl
 from shampoo.shampoo import Shampoo,ShampooHyperParams
+from asdl.precondition.sophia import SophiaG
 
 # -----------------------------------------------------------------------------
 
@@ -265,6 +266,8 @@ class GPT(nn.Module):
         elif train_config.optim == asdl.OPTIM_SHAMPOO_KFAC:
             hyper = ShampooHyperParams(beta2 = 1 - train_config.ema_decay, weight_decay = train_config.weight_decay,matrix_eps=train_config.shampoo_damping ,block_size=train_config.block_size, start_preconditioning_step=train_config.curvature_update_interval, preconditioning_compute_steps=train_config.curvature_update_interval)
             optimizer = Shampoo(optim_groups, lr=train_config.learning_rate, momentum=train_config.momentum, hyperparams=hyper)
+        elif train_config.optim == asdl.OPTIM_SOPHIA:
+            optimizer = SophiaG(optim_groups, lr=train_config.learning_rate, betas=(0.965, 0.99), rho = train_config.damping, weight_decay=train_config.weight_decay)
         else:
             optimizer = torch.optim.SGD(optim_groups, lr=train_config.learning_rate, weight_decay=train_config.weight_decay,momentum=train_config.momentum)
         grad_maker = asdl.create_grad_maker(self,optimizer,train_config)

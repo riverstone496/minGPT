@@ -103,13 +103,27 @@ class Trainer:
             # backprop and update the parameters
             #self.loss.backward()
             
-            model.zero_grad(set_to_none=True)
-            dummy_y = self.grad_maker.setup_model_call(model, x, y)
-            self.grad_maker.setup_loss_repr(dummy_y[1])
-            logits, self.loss = self.grad_maker.forward_and_backward()
-            self.optimizer.step()
-            if self.scheduler is not None:
-                self.scheduler.step()
+            if config.optim != asdl.OPTIM_SOPHIA:
+                model.zero_grad(set_to_none=True)
+                dummy_y = self.grad_maker.setup_model_call(model, x, y)
+                self.grad_maker.setup_loss_repr(dummy_y[1])
+                logits, self.loss = self.grad_maker.forward_and_backward()
+                self.optimizer.step()
+                if self.scheduler is not None:
+                    self.scheduler.step()
+            if config.optim == asdl.OPTIM_SOPHIA:
+                logits, loss = model(x, y)
+                loss.backward()
+                self.optimizer.step(bs=config.batch_size)
+                self.optimizer.zero_grad(set_to_none=True)
+                # update hessian EMA
+                logits, loss = model(x, None)
+                samp_dist = torch.distributions.Categorical(logits=logits)
+                y_sample = samp_dist.sample()
+                loss_sampled = torch.nn.functional.cross_entropy(logits.view(-1, logits.size(-1)), y_sample.view(-1), ignore_index=-1)
+                loss_sampled.backward()
+                self.optimizer.update_hessian()
+                self.optimizer.zero_grad(set_to_none=True)
 
             logits, self.loss = model(x, y)
 
