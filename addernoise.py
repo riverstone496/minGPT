@@ -164,7 +164,7 @@ if __name__ == '__main__':
     def batch_end_callback(trainer):
         global gradnormlist
         batchgrad = torch.nn.utils.parameters_to_vector([param.grad.clone().detach() for param in model.parameters()])
-        gradnorm = float(torch.norm(fullgrad - batchgrad))
+        gradnorm = float(torch.norm(fullgrad - batchgrad)/torch.norm(fullgrad))
         gradnormlist.append(gradnorm)
         model.train()
     trainer.set_callback('on_batch_end', batch_end_callback)
