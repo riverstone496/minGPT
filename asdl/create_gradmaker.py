@@ -32,7 +32,8 @@ OPTIM_ADAM_KFAC = 'adam_kfac'
 OPTIM_ADAM_SHAMPOO = 'adam_shampoo'
 OPTIM_SHAMPOO_KFAC = 'shampoo_kfac'
 OPTIM_ADAM_PSGD = 'adam_psgd'
-OPTIM_SOPHIA = 'sophia'
+OPTIM_SOPHIAG = 'sophiag'
+OPTIM_SOBA = 'soba'
 
 def create_grad_maker(model,optimizer,args):
     if 'None' in args.ignore_modules:

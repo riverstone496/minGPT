@@ -5,6 +5,7 @@ so nothing in this file really has anything to do with GPT specifically.
 
 import time,math
 from collections import defaultdict
+import warmup_scheduler
 
 import torch
 from torch.utils.data.dataloader import DataLoader
@@ -68,7 +69,11 @@ class Trainer:
         self.optimizer, self.grad_maker = model.configure_optimizers(config)
 
         if config.scheduler == 'cosine':
-            self.scheduler=CosineAnnealingLR(self.optimizer, T_max=config.max_iters,eta_min=0)
+            if config.warmup != 0:
+                base_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(self.optimizer, T_max=config.max_iters, eta_min=0)
+                self.scheduler = warmup_scheduler.GradualWarmupScheduler(self.optimizer, multiplier=1., total_epoch=config.warmup, after_scheduler=base_scheduler)
+            else:
+                self.scheduler=CosineAnnealingLR(self.optimizer, T_max=config.max_iters,eta_min=0)
         else:
             self.scheduler = None
 
@@ -103,7 +108,7 @@ class Trainer:
             # backprop and update the parameters
             #self.loss.backward()
             
-            if config.optim != asdl.OPTIM_SOPHIA:
+            if config.optim != asdl.OPTIM_SOPHIAG:
                 model.zero_grad(set_to_none=True)
                 dummy_y = self.grad_maker.setup_model_call(model, x, y)
                 self.grad_maker.setup_loss_repr(dummy_y[1])
@@ -111,7 +116,7 @@ class Trainer:
                 self.optimizer.step()
                 if self.scheduler is not None:
                     self.scheduler.step()
-            if config.optim == asdl.OPTIM_SOPHIA:
+            if config.optim == asdl.OPTIM_SOPHIAG:
                 logits, loss = model(x, y)
                 loss.backward()
                 self.optimizer.step(bs=config.batch_size)

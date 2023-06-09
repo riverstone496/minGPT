@@ -106,8 +106,8 @@ class CfgNode:
             setattr(obj, leaf_key, val)
 
 def make_config(config, parser):
-    parser.add_argument('--batch_size', type=int, default=32)
-    parser.add_argument('--learning_rate', type=float, default=5e-5)
+    parser.add_argument('--batch_size', type=int, default=256)
+    parser.add_argument('--learning_rate', type=float, default=0.0005)
     parser.add_argument('--weight_decay', type=float, default=0.1)
     parser.add_argument('--beta2', type=float, default=0.95)
     
@@ -121,6 +121,7 @@ def make_config(config, parser):
     parser.add_argument('--num_workers', type=int, default=4)
 
     parser.add_argument('--max_iters', type=int, default=1e+4)
+    parser.add_argument('--warmup', type=int, default=0)
 
     parser.add_argument('--inv_exp', type=float, default=-1)
     parser.add_argument('--shampoo_damping', type=float, default=1e-8)
@@ -137,8 +138,9 @@ def make_config(config, parser):
     parser.add_argument('--scheduler', type=str, default='cosine')
 
     parser.add_argument('--curvature_update_interval', type=int, default=1)
-    parser.add_argument('--damping', type=float, default=1e-8)
-    parser.add_argument('--ema_decay', type=float, default=0.05)
+    parser.add_argument('--damping', type=float, default=0.000001)
+    parser.add_argument('--ema_decay', type=float, default=0.9)
+    parser.add_argument('--rho', type=float, default=0.04)
 
     parser.add_argument('--wandb', action='store_false', default=True)
 
@@ -165,6 +167,8 @@ def make_config(config, parser):
     config.trainer.optim = args.optim
     config.trainer.ignore_modules = args.ignore_modules
     config.trainer.precond_lr = args.precond_lr
+    config.trainer.rho = args.rho
+    config.trainer.warmup = args.warmup
 
     config.trainer.momentum = args.momentum
     config.trainer.curvature_update_interval = args.curvature_update_interval

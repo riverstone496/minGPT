@@ -5,6 +5,7 @@ Trains a GPT to add n-digit numbers.
 import os
 import sys
 import wandb
+import math
 
 import torch
 from torch.utils.data import Dataset
@@ -200,6 +201,10 @@ if __name__ == '__main__':
                        'train_loss': trainer.loss.item()}
                 wandb.log(log)
             print(f"iter_dt {trainer.iter_dt * 1000:.2f}ms; iter {trainer.iter_num}: train loss {trainer.loss.item():.5f}")
+
+            if math.isnan(trainer.loss.item()):
+                print('Error:loss is nan', file=sys.stderr)
+                sys.exit(0)
 
         if trainer.iter_num % 10 == 0:
             # evaluate both the train and test score
