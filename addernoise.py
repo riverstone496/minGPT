@@ -146,11 +146,19 @@ if __name__ == '__main__':
     config.trainer.max_iters = 1
     config.trainer.batch_size = 8192
     trainer = Trainer(config.trainer, model, train_dataset)
-    fullgrad = None
+    fullgrad = {}
+    gradnormlist = {}
+
     def fullbatch_end_callback(trainer):
         global fullgrad
-        fullgrad = torch.nn.utils.parameters_to_vector([param.grad.clone().detach() for param in model.parameters()])
+        fullgrad['full'] = torch.nn.utils.parameters_to_vector([param.grad.clone().detach() for param in model.parameters()])
+        gradnormlist['full'] = []
+
+        for (name,param) in model.named_parameters():
+            fullgrad[name] = param.grad.clone().detach()
+            gradnormlist[name] = []
         model.train()
+
     trainer.set_callback('on_batch_end', fullbatch_end_callback)
     # run the optimization
     trainer.run()
@@ -160,19 +168,28 @@ if __name__ == '__main__':
     config.trainer.max_iters = 8192
     config.trainer.batch_size = 1
     trainer = Trainer(config.trainer, model, train_dataset)
-    gradnormlist = []
+
     def batch_end_callback(trainer):
         global gradnormlist
+        
         batchgrad = torch.nn.utils.parameters_to_vector([param.grad.clone().detach() for param in model.parameters()])
-        gradnorm = float(torch.norm(fullgrad - batchgrad)/torch.norm(fullgrad))
-        gradnormlist.append(gradnorm)
+        gradnorm = float(torch.norm(fullgrad['full'] - batchgrad)/torch.norm(fullgrad['full']))
+        gradnormlist['full'].append(gradnorm)
+
+        for (name,param) in model.named_parameters():
+            batchgrad = param.grad.clone().detach() 
+            gradnorm = float(torch.norm(fullgrad[name] - batchgrad)/torch.norm(fullgrad[name]))
+            gradnormlist[name].append(gradnorm)
         model.train()
+
+        trainer.model = model
+
     trainer.set_callback('on_batch_end', batch_end_callback)
     # run the optimization
     trainer.run()
     print(gradnormlist)
 
     import pickle
-    f = open('./pickles/gradnormlist_opt'+config.trainer.optim+'_clip_'+str(config.trainer.grad_norm_clip)+'.txt', 'wb')
+    f = open('./pickles/gradnormlist_opt'+config.trainer.optim+'_clip_'+str(config.trainer.grad_norm_clip)+'.pickle', 'wb')
     pickle.dump(gradnormlist, f)
 
